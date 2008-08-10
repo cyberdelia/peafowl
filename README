@@ -8,7 +8,7 @@ Synopsis
 
 ::
 
-    # Start the Starling server as a daemonized process:
+    # Start the Peafowl server as a daemonized process:
     >>> peafowl -H 192.168.1.1 -d
 
     # Put messages onto a queue:
