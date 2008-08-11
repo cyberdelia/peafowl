@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import threading, re, time, os, logging
+import re, time, os, logging, socket, errno, threading
 from resource import getrusage, RUSAGE_SELF
 from struct import pack, unpack
-import peafowl as peafowl
 
 DATA_PACK_FMT = "!I%sp"
 
@@ -66,12 +65,22 @@ class Handler(threading.Thread):
         """
         self.stats['total_connections'] += 1
         while True:
-            command = self.file.readline()
-            if not command:
-                break
-            logging.debug("Receiving command : %s" % repr(command))
-            self.stats['bytes_read'] += len(command)
-            self._process(command)
+            try:
+                command = self.file.readline()
+                if not command:
+                    break
+                logging.debug("Receiving command : %s" % repr(command))
+                self.stats['bytes_read'] += len(command)
+                self._process(command)
+            except socket.timeout, (value, message):
+                logging.info("Shutdown due to timeout: %s" % message)
+                self.socket.close()
+            except socket.error, (value, message):
+                if value == errno.EMFILE:
+                    # we should do something less stupid
+                    logging.warning("Too many open files or sockets")
+                else:
+                    self.socket.close()
     
     def _process(self, command):
         m = re.match(SET_COMMAND, command)
