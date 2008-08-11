@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import unittest, random, time, threading
-from peafowl.server import Server
+import unittest, random, time
 try:
     from cmemcache import Client
 except ImportError:
