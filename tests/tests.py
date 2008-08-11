@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import unittest, random, time
+import unittest, random, time, hashlib, os
+from peafowl.collection import QueueCollection, QueueCollectionError
 try:
     from cmemcache import Client
 except ImportError:
@@ -7,11 +8,11 @@ except ImportError:
 
 class TestPeafowl(unittest.TestCase):
     def setUp(self):
-        self.memcache = Client(['127.0.0.1:21122'], debug=False)
-
+        self.memcache = Client(['127.0.0.1:21122'])
+        
     def tearDown(self):
         self.memcache.disconnect_all()
-        
+
     def test_set_and_get_one_entry(self):
         v = random.randint(1, 32)
         self.assertEqual(None, self.memcache.get('test_set_and_get_one_entry'))
@@ -48,8 +49,16 @@ class TestPeafowl(unittest.TestCase):
         self.memcache.disconnect_all()
         self.assertEqual(v, int(self.memcache.get('test_that_disconnecting_and_reconnecting_works')))
 
-class TestServer(unittest.TestCase):
-    pass
+    def test_creating_queue_collection_with_invalid_path_throws__exception(self):
+        invalid_path = None
+        while invalid_path == None or os.path.exists(invalid_path):
+            v = str(random.randint(1, 32))
+            invalid_path = os.path.join('/', hashlib.md5(v).hexdigest())
+        try:
+            collection = QueueCollection(invalid_path)
+            self.fail("QueueCollectionError has not been raised")
+        except QueueCollectionError:
+            pass
 
 if __name__ == '__main__':
     unittest.main()

@@ -81,7 +81,6 @@ class PersistentQueue(Queue):
     def _replay_transaction_log(self, debug = False):
         self._open_log()
         bytes_read = 0
-        
         logging.debug("Reading back transaction log for %s" % self.queue_name)
     
         while True:
