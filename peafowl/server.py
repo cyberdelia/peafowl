@@ -31,7 +31,7 @@ class Server(object):
             self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.server.bind((self.opts['host'], self.opts['port']))
             self.server.listen(5)
-            logging.debug("Listening to %s on port %s" % (self.opts['host'], self.opts['port']))
+            logging.info("Listening to %s on port %s" % (self.opts['host'], self.opts['port']))
         except socket.error, e:
             if self.server:
                 self.server.close()
@@ -49,6 +49,7 @@ class Server(object):
                 sys.exit(1)
     
     def stop(self):
+        self.queue_collection.close()
         if self.server:
             self.server.close()
     
