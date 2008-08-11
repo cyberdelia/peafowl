@@ -10,7 +10,7 @@ DEFAULT_TIMEOUT = 60
 DEFAULT_PID = '/var/run/peafowl.pid'
 
 class Server(object):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
         Initialize a new Peafowl server, but do not accept connections or
         process requests.
@@ -19,9 +19,11 @@ class Server(object):
         opts.update(kwargs)
         self.opts = opts
         self.queue_collection = QueueCollection(self.opts['path'])
+        logging.basicConfig(level=opts['debug'], format='%(asctime)s %(levelname)s %(message)s')
         self.stats = {'bytes_read':0, 'bytes_written':0, 'start_time':time.time(), 'connections':0, 
                       'total_connections':0, 'get_requests':0, 'set_requests':0}
-        logging.basicConfig(level=opts['debug'], format='%(asctime)s %(levelname)s %(message)s')
+        self.stats['start_time'] = time.time()
+        self._bind()
     
     def _bind(self):
         try:
@@ -29,23 +31,14 @@ class Server(object):
             self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.server.bind((self.opts['host'], self.opts['port']))
             self.server.listen(5)
+            logging.debug("Listening to %s on port %s" % (self.opts['host'], self.opts['port']))
         except socket.error, e:
             if self.server:
                 self.server.close()
             logging.error("Could not open socket: %s" % e.message)
             sys.exit(1)
     
-    def stop(self):
-        if self.server:
-            self.server.close()
-    
-    def start(self):
-        """
-        Start listening and processing requests.
-        """
-        self.stats['start_time'] = time.time()
-        self._bind()
-        logging.debug("Listening to %s on port %s" % (self.opts['host'], self.opts['port']))
+    def run(self):
         while True:
             try:
                 self.stats['connections'] += 1
@@ -54,4 +47,17 @@ class Server(object):
                 self.stats['connections'] -= 1
             except socket.error, e:
                 sys.exit(1)
+    
+    def stop(self):
+        if self.server:
+            self.server.close()
+    
+    @staticmethod
+    def start(**kwargs):
+        """
+        Start listening and processing requests.
+        """
+        server = Server(**kwargs)
+        server.run()
+        return server
 
