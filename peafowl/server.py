@@ -15,14 +15,13 @@ class Server(object):
         Initialize a new Peafowl server, but do not accept connections or
         process requests.
         """
-        opts = {'host':DEFAULT_HOST, 'port':DEFAULT_PORT, 'path':DEFAULT_PATH, 'timeout':DEFAULT_TIMEOUT, 'debug':False}
+        opts = {'host':DEFAULT_HOST, 'port':DEFAULT_PORT, 'path':DEFAULT_PATH, 'timeout':DEFAULT_TIMEOUT, 'debug':20}
         opts.update(kwargs)
         self.opts = opts
         self.queue_collection = QueueCollection(self.opts['path'])
         self.stats = {'bytes_read':0, 'bytes_written':0, 'start_time':time.time(), 'connections':0, 
                       'total_connections':0, 'get_requests':0, 'set_requests':0}
-        if opts['debug']:
-            logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
+        logging.basicConfig(level=opts['debug'], format='%(asctime)s %(levelname)s %(message)s')
     
     def _bind(self):
         try:

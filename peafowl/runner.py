@@ -29,7 +29,7 @@ class Runner(object):
         parser.add_option("-u", "--user", action="store", type="int", dest="user", help="user to run as")
         parser.add_option("-g", "--group", action="store", type="int", dest="group", help="group to run as")
         parser.add_option("-l", "--log", action="store", type="string", dest="log_file", help="path to print debugging information")
-        parser.add_option("-v", action="count", dest="verbosity", help="increase logging verbosity")
+        parser.add_option("-v", action="count", dest="verbosity", help="increase logging verbosity", default=0)
         parser.set_defaults(verbose=True)
         return parser.parse_args()
     
@@ -44,7 +44,9 @@ class Runner(object):
         
         self.trap_signals()
         self.process.write_pid_file()
-        self.server = server.Server(host=options.host, port=options.port, path=options.path)
+        if options.verbosity == 0:
+            options.verbosity = 2
+        self.server = server.Server(host=options.host, port=options.port, path=options.path, debug=options.verbosity * 10)
         self.server.start()
         self.process.remove_pid_file()
     

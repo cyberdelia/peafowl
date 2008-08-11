@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, time, thread
+import os, time, thread, logging
 from Queue import Queue
 from struct import pack, unpack
 
@@ -35,7 +35,7 @@ class PersistentQueue(Queue):
     
     def put(self, value, log = True):
         """
-        Pushes ``value`` to the queue. By default, +put+ will write to the
+        Pushes ``value`` to the queue. By default, ``put`` will write to the
         transactional log. Set ``log`` to ``False`` to override this behaviour.
         """
         if log:
@@ -82,16 +82,14 @@ class PersistentQueue(Queue):
         self._open_log()
         bytes_read = 0
         
-        if debug:
-            print "Reading back transaction log for %s" % self.queue_name
+        logging.debug("Reading back transaction log for %s" % self.queue_name)
     
         while True:
             cmd = self.transaction_log.read(1)
             if not cmd:
                 break;
             if cmd == TRX_CMD_PUSH:
-                if debug:
-                    print ">"
+                logging.debug(">")
                 raw_size = self.transaction_log.read(4)
                 size = unpack("I", raw_size)
                 data = self.transaction_log.read(size[0])
@@ -100,14 +98,11 @@ class PersistentQueue(Queue):
                 self.put(data, False)
                 bytes_read += len(data)
             elif cmd == TRX_CMD_POP:
-                if debug:
-                    print "<"
+                logging.debug("<")
                 bytes_read -= len(self.get(False))
             else:
-                if debug:
-                    print "Error reading transaction log: I don't understand '%s' (skipping)." % cmd
-        if debug:
-            print "done."
+                logging.debug("Error reading transaction log: I don't understand '%s' (skipping)." % cmd)
+        logging.debug("done.")
         return bytes_read
         
     def _transaction(self, data):
