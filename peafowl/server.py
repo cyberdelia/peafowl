@@ -29,6 +29,8 @@ class Server(object):
         try:
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.server.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            self.server.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
             self.server.bind((self.opts['host'], self.opts['port']))
             self.server.listen(5)
             logging.info("Listening to %s on port %s" % (self.opts['host'], self.opts['port']))
