@@ -4,7 +4,7 @@ from setuptools import setup
 #from distutils.core import setup
 
 setup(name='peafowl',
-      version='0.2',
+      version='0.3',
       description='A light weight server for reliable distributed message passing.',
       author='Timothee Peignier',
       author_email='tim@tryphon.org',

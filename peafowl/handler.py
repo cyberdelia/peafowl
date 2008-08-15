@@ -152,7 +152,7 @@ class Handler(threading.Thread):
             os.getpid(), # pid
             time.time() - self.stats['start_time'], # uptime
             time.time(), # time
-            '0.2', # peafowl version
+            '0.3', # peafowl version
             getrusage(RUSAGE_SELF)[0],
             getrusage(RUSAGE_SELF)[1], 
             self.queue_collection.get_stats('current_size'),
