@@ -44,8 +44,6 @@ class Runner(object):
         
         self.trap_signals()
         self.process.write_pid_file()
-        if options.verbosity == 0:
-            options.verbosity = 2
         self.server = server.Server.start(host=options.host, port=options.port, path=options.path, debug=options.verbosity * 10)
         self.process.remove_pid_file()
     

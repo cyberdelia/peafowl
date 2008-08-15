@@ -88,7 +88,6 @@ class PersistentQueue(Queue):
             if not cmd:
                 break;
             if cmd == TRX_CMD_PUSH:
-                logging.debug(">")
                 raw_size = self.transaction_log.read(4)
                 size = unpack("I", raw_size)
                 data = self.transaction_log.read(size[0])
@@ -97,11 +96,10 @@ class PersistentQueue(Queue):
                 self.put(data, False)
                 bytes_read += len(data)
             elif cmd == TRX_CMD_POP:
-                logging.debug("<")
                 bytes_read -= len(self.get(False))
             else:
-                logging.debug("Error reading transaction log: I don't understand '%s' (skipping)." % cmd)
-        logging.debug("done.")
+                logging.warning("Error reading transaction log: I don't understand '%s' (skipping)." % cmd)
+        logging.debug("Reading back transaction log is done.")
         return bytes_read
         
     def _transaction(self, data):
