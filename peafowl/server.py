@@ -18,23 +18,25 @@ class Server(object):
         """
         opts = {'host':DEFAULT_HOST, 'port':DEFAULT_PORT, 'path':DEFAULT_PATH, 'timeout':DEFAULT_TIMEOUT, 'debug':DEFAULT_VERBOSITY}
         opts.update(kwargs)
-        self.opts = opts
-        self.queue_collection = QueueCollection(self.opts['path'])
-        logging.basicConfig(level=DEFAULT_VERBOSITY - opts['debug'], format='%(asctime)s %(levelname)s %(message)s')
+        if opts.has_key('log'):            
+            logging.basicConfig(filename=opts['log'], level=DEFAULT_VERBOSITY - opts['debug'], format='%(asctime)s %(levelname)s %(message)s')
+        else:
+            logging.basicConfig(level=DEFAULT_VERBOSITY - opts['debug'], format='%(asctime)s %(levelname)s %(message)s')
+        self.queue_collection = QueueCollection(opts['path'])
         self.stats = {'bytes_read':0, 'bytes_written':0, 'start_time':time.time(), 'connections':0, 
                       'total_connections':0, 'get_requests':0, 'set_requests':0}
         self.stats['start_time'] = time.time()
-        self._bind()
+        self._bind(opts['host'], opts['port'])
     
-    def _bind(self):
+    def _bind(self, host, port):
         try:
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.server.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.server.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-            self.server.bind((self.opts['host'], self.opts['port']))
+            self.server.bind((host, port))
             self.server.listen(5)
-            logging.info("Listening to %s on port %s" % (self.opts['host'], self.opts['port']))
+            logging.info("Listening to %s on port %s" % (host, port))
         except socket.error, e:
             if self.server:
                 self.server.close()

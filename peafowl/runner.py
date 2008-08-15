@@ -44,7 +44,7 @@ class Runner(object):
         
         self.trap_signals()
         self.process.write_pid_file()
-        self.server = server.Server.start(host=options.host, port=options.port, path=options.path, debug=options.verbosity * 10)
+        self.server = server.Server.start(host=options.host, port=options.port, path=options.path, debug=options.verbosity * 10, log = options.log_file)
         self.process.remove_pid_file()
     
     def shutdown(self, signal, frame):
