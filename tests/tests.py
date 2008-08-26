@@ -17,7 +17,7 @@ class TestPeafowl(unittest.TestCase):
         v = random.randint(1, 32)
         self.assertEqual(None, self.memcache.get('test_set_and_get_one_entry'))
         self.memcache.set('test_set_and_get_one_entry', v)
-        self.assertEqual(v, int(self.memcache.get('test_set_and_get_one_entry')))
+        self.assertEqual(v, self.memcache.get('test_set_and_get_one_entry'))
     
     def test_set_with_expiry(self):
         v = random.randint(1, 32)
@@ -26,7 +26,7 @@ class TestPeafowl(unittest.TestCase):
         self.memcache.set('test_set_with_expiry', v + 2, now)
         self.memcache.set('test_set_with_expiry', v)
         time.sleep(now + 1 - time.time())
-        self.assertEqual(v, int(self.memcache.get('test_set_with_expiry')))
+        self.assertEqual(v, self.memcache.get('test_set_with_expiry'))
 
     def test_stats(self):
         (key, stats) = self.memcache.get_stats()[0]

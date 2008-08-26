@@ -3,7 +3,7 @@ import re, time, os, logging, socket, errno, threading
 from resource import getrusage, RUSAGE_SELF
 from struct import pack, unpack
 
-DATA_PACK_FMT = "!I%sp"
+DATA_PACK_FMT = "!II%sp"
 
 # ERROR responses
 ERR_UNKNOWN_COMMAND = "CLIENT_ERROR bad command line format\r\n"
@@ -115,7 +115,7 @@ class Handler(threading.Thread):
         data_end = self.file.read(2)
         self.stats['bytes_read'] += (length + 2)
         if data_end == '\r\n' and len(data) == length:
-            internal_data = pack(DATA_PACK_FMT % (length + 1), int(expiry), data)
+            internal_data = pack(DATA_PACK_FMT % (length + 1), int(flags), int(expiry), data)
             if self.queue_collection.put(key, internal_data):
                 logging.debug("SET command is a success")
                 self._respond(SET_RESPONSE_SUCCESS)
@@ -131,18 +131,18 @@ class Handler(threading.Thread):
         data = None
         response = self.queue_collection.take(key)
         while response:
-            expiry, data = unpack(DATA_PACK_FMT % (len(response) - 4), response)
+            flags, expiry, data = unpack(DATA_PACK_FMT % (len(response) - 8), response)
             if expiry == 0 or expiry >= now:
                 break
             if self.expiry_stats.has_key(key):
                 self.expiry_stats[key] += 1
             else:
                 self.expiry_stats[key] = 1
-            expiry, data = None, None
+            flags, expiry, data = None, None, None
             response = self.queue_collection.take(key)
         if data:
             logging.debug("GET command respond with value")
-            self._respond(GET_RESPONSE, key, 0, len(data), data)
+            self._respond(GET_RESPONSE, key, flags, len(data), data)
         else:
             logging.debug("GET command response was empty")
             self._respond(GET_RESPONSE_EMPTY)
