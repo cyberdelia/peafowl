@@ -28,6 +28,12 @@ class TestPeafowl(unittest.TestCase):
         time.sleep(now + 1 - time.time())
         self.assertEqual(v, self.memcache.get('test_set_with_expiry'))
 
+    def test_long_value(self):
+        string = ''.join([random.choice("abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789") for i in range(300)])
+        self.memcache.set('test_long_value', string)
+        string = self.memcache.get('test_long_value')
+        self.assertEqual(len(string), 300)
+
     def test_stats(self):
         (key, stats) = self.memcache.get_stats()[0]
         self.assertEqual('127.0.0.1:21122 (1)', key)

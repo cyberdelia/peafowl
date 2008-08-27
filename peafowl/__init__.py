@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__version__ = "0.4"
+__version__ = "0.5"
 from server import Server
 from runner import Runner
 from handler import Handler

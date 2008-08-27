@@ -3,7 +3,7 @@ import re, time, os, logging, socket, errno, threading
 from resource import getrusage, RUSAGE_SELF
 from struct import pack, unpack
 
-DATA_PACK_FMT = "!II%sp"
+DATA_PACK_FMT = "!II%ss"
 
 # ERROR responses
 ERR_UNKNOWN_COMMAND = "CLIENT_ERROR bad command line format\r\n"
@@ -115,7 +115,7 @@ class Handler(threading.Thread):
         data_end = self.file.read(2)
         self.stats['bytes_read'] += (length + 2)
         if data_end == '\r\n' and len(data) == length:
-            internal_data = pack(DATA_PACK_FMT % (length + 1), int(flags), int(expiry), data)
+            internal_data = pack(DATA_PACK_FMT % (length), int(flags), int(expiry), data)
             if self.queue_collection.put(key, internal_data):
                 logging.debug("SET command is a success")
                 self._respond(SET_RESPONSE_SUCCESS)
@@ -148,11 +148,12 @@ class Handler(threading.Thread):
             self._respond(GET_RESPONSE_EMPTY)
     
     def get_stats(self):
+        from __init__ import __version__
         self._respond(STATS_RESPONSE,
             os.getpid(), # pid
             time.time() - self.stats['start_time'], # uptime
             time.time(), # time
-            '0.4', # peafowl version
+            __version__, # peafowl version
             getrusage(RUSAGE_SELF)[0],
             getrusage(RUSAGE_SELF)[1], 
             self.queue_collection.get_stats('current_size'),
