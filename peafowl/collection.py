@@ -8,7 +8,11 @@ class QueueCollectionError(Exception):
 class QueueCollection(object):
     def __init__(self, path):
         if not os.path.isdir(path) and not os.access(path, os.W_OK):
-            raise QueueCollectionError("Queue path '%s' is inacessible" % path) 
+            try:
+                os.makedirs(path)
+                logging.info("Creating queue directory : '%s'" % path)
+            except OSError:
+                raise QueueCollectionError("Queue path '%s' is inacessible" % path) 
         self.shutdown_lock = thread.allocate_lock()
         self.path = path
         self.queues = {}
