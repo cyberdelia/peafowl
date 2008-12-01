@@ -40,7 +40,8 @@ STAT bytes_read %d\r
 STAT bytes_written %d\r
 STAT limit_maxbytes %d\r
 %s\nEND\r\n"""
-QUEUE_STATS_RESPONSE = """STAT queue_%s_items %d\r
+QUEUE_STATS_RESPONSE = """
+STAT queue_%s_items %d\r
 STAT queue_%s_total_items %d\r
 STAT queue_%s_logsize %d\r
 STAT queue_%s_expired_items %d\r"""
