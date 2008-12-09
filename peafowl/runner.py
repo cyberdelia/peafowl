@@ -34,16 +34,17 @@ class Runner(object):
         return parser.parse_args()
     
     def start(self, options):
-        if options.user:
-            os.seteuid(options.user)
+        self.process.write_pid_file()
+        
         if options.group:
             os.setegid(options.group)
+        if options.user:
+            os.seteuid(options.user)
             
         if options.daemonize:
             self.process.daemonize()
         
         self.trap_signals()
-        self.process.write_pid_file()
         self.server = server.Server.start(host=options.host, port=options.port, path=options.path, debug=options.verbosity * 10, log = options.log_file)
         self.process.remove_pid_file()
     
