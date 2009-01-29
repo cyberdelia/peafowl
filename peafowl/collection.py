@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, thread
+import os, thread, logging
 from queue import PersistentQueue
 
 class QueueCollectionError(Exception):
