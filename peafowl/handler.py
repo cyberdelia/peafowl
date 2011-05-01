@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import re, time, os, logging, socket, errno, threading
-from resource import getrusage, RUSAGE_SELF
 from struct import pack, unpack
+
+from utils import rusage_user, rusage_system
 
 DATA_PACK_FMT = "!II%ss"
 
@@ -155,8 +156,8 @@ class Handler(threading.Thread):
             time.time() - self.stats['start_time'], # uptime
             time.time(), # time
             __version__, # peafowl version
-            getrusage(RUSAGE_SELF)[0],
-            getrusage(RUSAGE_SELF)[1], 
+            rusage_user(),
+            rusage_system(), 
             self.queue_collection.get_stats('current_size'),
             self.queue_collection.get_stats('total_items'),
             self.queue_collection.get_stats('current_bytes'),
