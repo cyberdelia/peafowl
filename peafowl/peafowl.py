@@ -32,6 +32,5 @@ class Peafowl(memcache.Client):
 
     def __len__(self, *args, **kwargs):
         statistics = self.get_stats()
-        return 1
-        
+        return int(statistics[0][1]['total_items'])
 
