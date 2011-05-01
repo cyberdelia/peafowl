@@ -55,17 +55,6 @@ class TestPeafowl(unittest.TestCase):
         self.memcache.disconnect_all()
         self.assertEqual(v, int(self.memcache.get('test_that_disconnecting_and_reconnecting_works')))
 
-    def test_creating_queue_collection_with_invalid_path_throws__exception(self):
-        invalid_path = None
-        while invalid_path == None or os.path.exists(invalid_path):
-            v = str(random.randint(1, 32))
-            invalid_path = os.path.join('/', hashlib.md5(v).hexdigest())
-        try:
-            collection = QueueCollection(invalid_path)
-            self.fail("QueueCollectionError has not been raised")
-        except QueueCollectionError:
-            pass
-
 if __name__ == '__main__':
     unittest.main()
 
